@@ -1,12 +1,16 @@
 #!/ usr/binenv python
 # -*- coding : utf -8 -*-
 
+import os
+
 def zeichne(f):
-	for y in range(0,6):			#0 bis 5
+	print "\t\t1  2  3  4  5  6  7"
+	for y in range(0,6):			#0 bis 5 (von oben nach unten)
 		print "\t\t",				#--> etwas einruecken
-		for x in range(0,7):		#0 bis 6
-			print f[x][y],			#feldinhalt anzeigen
+		for x in range(0,7):		#0 bis 6 (von links nach rechts)
+			print f[x][y] + " ",	#feldinhalt anzeigen + leerzeichen
 		print ""					#neue zeile
+	
 
 def pruefeEnde(): 
 	return False
@@ -21,6 +25,7 @@ def main():
 		f[x] = [".",".",".",".",".","."]
 			
 	while not (pruefeEnde()):			#solange das Spiel laeuft
+		os.system("clear")				#alles leeren
 		zeichne(f)
 		#Eingabe...
 		break
