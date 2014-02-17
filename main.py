@@ -8,7 +8,7 @@ def zeichne(f):
 			print f[x][y],			#feldinhalt anzeigen
 		print ""					#neue zeile
 
-def pruefeEnde():
+def pruefeEnde(): 
 	return False
 
 def main():
