@@ -3,6 +3,7 @@
 
 import os
 import random as r
+import re
 
 f = [0,1,2,3,4,5,6]					#leeres Feld f erzeugen (x-werte)
 
@@ -11,7 +12,7 @@ f = [0,1,2,3,4,5,6]					#leeres Feld f erzeugen (x-werte)
 def zeichne(spieler):
 	global f
 	os.system("clear")				#alles leeren
-	#Symolwahl
+	#Symbolwahl
 	if (spieler == 1):
 		symbol = "X"
 	else:
@@ -45,16 +46,54 @@ def setze(aktSp, spalte):
 #Fragt Spieler, wohin er setzen will
 def spielerZug(aktSp):
 	global f
-	spalte = "9"								#wert fuer spalte, damit while schleife greift
-	while not (spalte in range(0,7)):			#solange die eingabe nicht richtig war
-		spalte = int(raw_input("In welches Feld soll gesetzt werden? "))
-		spalte -= 1								#f...von 0 bis 6; eingabe von 1 bis 7
+	eingabeRichtig = False						
+	while not (eingabeRichtig):					#solange die eingabe nicht richtig war
+		spalte = raw_input("In welches Feld soll gesetzt werden? ")
+		if (spalte in "1234567" and spalte != ""):
+			spalte = int(spalte)
+			spalte -= 1								#f...von 0 bis 6; eingabe von 1 bis 7
+			eingabeRichtig = True
 	setze(aktSp, spalte)
 
 
 #prueft, ob das Spiel zuende ist
-def pruefeEnde(): 
-	return False
+def pruefeEnde():
+	global f
+	endeErkannt = False
+	
+	#erstellen eines Prueffeldes, mit dem einfach bestimmt werden kann, ob 4 Steine in einer Reihe liegen
+	pruefFeld = []
+	for x in range(0,7):
+		for y in range(0,6):
+			pruefFeld.append(f[x][y])
+	pruefStr = "".join(pruefFeld)			#Feld --> String
+	print pruefStr
+	
+	for sp in "XO":							#fuer beide spieler
+		#senkrecht:
+		if ("%s%s%s%s"%(sp,sp,sp,sp) in pruefStr):
+			endeErkannt = True
+			
+		#waagerecht:		z.B.: XO....XO....XO....XO
+		pattern = r'%s.....%s.....%s.....%s'%(sp,sp,sp,sp)			
+		filtered = re.search(pattern,pruefStr)
+		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):		#wenn gefunden --> typ wird "_sre.SRE_ ..."
+			endeErkannt = True
+		
+		#diagonal nach rechts unten:			z.B.: OXOX...OXX....OX.....O
+		pattern = r'%s......%s......%s......%s'%(sp,sp,sp,sp)
+		filtered = re.search(pattern,pruefStr)
+		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
+			endeErkannt = True
+		
+		#diagonal nach rechts oben:				z.B.: O....OX...OXX..OXOX
+		pattern = r'%s....%s....%s....%s'%(sp,sp,sp,sp)
+		filtered = re.search(pattern,pruefStr)
+		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
+			endeErkannt = True
+		
+	return endeErkannt
+	
 
 
 def main():
@@ -70,7 +109,7 @@ def main():
 	#SPIEL:
 	aktSp = r.randint(0,1)				#aktueller Spieler...Bestimmen, welcher Spieler beginnt	
 	while not (pruefeEnde()):			#solange das Spiel laeuft
-		zeichne(spieler[aktSp])
+		zeichne(aktSp)
 		spielerZug(aktSp)
 		
 		#Spielerwechsel
