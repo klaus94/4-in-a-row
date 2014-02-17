@@ -11,7 +11,12 @@ f = [0,1,2,3,4,5,6]					#leeres Feld f erzeugen (x-werte)
 def zeichne(spieler):
 	global f
 	os.system("clear")				#alles leeren
-	print "\n\n%s ist am Zug\n\n"%(spieler)
+	#Symolwahl
+	if (spieler == 1):
+		symbol = "X"
+	else:
+		symbol = "O"
+	print "\n\n%s ist am Zug (%s)\n\n"%(spieler, symbol)
 	print "\t\t1  2  3  4  5  6  7"
 	for y in range(0,6):			#0 bis 5 (von oben nach unten)
 		print "\t\t",				#--> etwas einruecken
@@ -34,6 +39,7 @@ def setze(aktSp, spalte):
 	for y in range(0,6):			#test von oben
 		if (y+1 == 6 or f[spalte][y+1] != "."):
 			f[spalte][y] = symbol
+			break
 		
 
 #Fragt Spieler, wohin er setzen will
