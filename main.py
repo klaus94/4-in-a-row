@@ -1,6 +1,8 @@
 #!/ usr/binenv python
 # -*- coding : utf -8 -*-
 
+#4 gewinnt - nun gegen den Computer
+
 import os
 import random as r
 import re
