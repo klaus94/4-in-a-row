@@ -16,9 +16,9 @@ def zeichne(aktSp, spieler):
 	os.system("clear")				#alles leeren
 	#Symbolwahl
 	if (aktSp == 1):
-		symbol = "X"
-	else:
 		symbol = "O"
+	else:
+		symbol = "X"
 	print "\n\nSpieler %i - %s ist am Zug (%s)\n\n"%(aktSp+1, spieler[aktSp], symbol)
 	print "\t\t1  2  3  4  5  6  7"
 	for y in range(0,6):			#0 bis 5 (von oben nach unten)
@@ -27,32 +27,44 @@ def zeichne(aktSp, spieler):
 			print f[x][y] + " ",	#feldinhalt anzeigen + leerzeichen
 		print ""					#neue zeile
 	print ""		
-
+	
+	
 #Fragt Spieler, wohin er setzen will
-def spielerZug(aktSp):
+def spielerZug():
 	global f
-	eingabeRichtig = False						
+	eingabeRichtig = False
+	symbol = "X"						#Spieler hat immer das X						
 	while not (eingabeRichtig):					#solange die eingabe nicht richtig war
 		spalte = raw_input("In welches Feld soll gesetzt werden? ")
 		if (spalte in "1234567" and spalte != ""):
 			spalte = int(spalte)
 			spalte -= 1								#f...von 0 bis 6; eingabe von 1 bis 7
 			
-			if (aktSp == 1):						#Symolwahl
-				symbol = "X"
-			else:
-				symbol = "O"
-		
 			for y in range(0,6):					#test von oben
-					#[boden]		[auf letzten stein]		[nicht ins oberste, wenn reihe voll]
+			#[boden]		[auf letzten stein]		[nicht ins oberste, wenn reihe voll]
 				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):
-					f[spalte][y] = symbol
 					eingabeRichtig = True
+					f[spalte][y] = symbol
 					break
+					
+					
+def computerZug():
+	global f
+	gefunden = False
+	spalte = 0
+	symbol = "O"								#Computer hat immer das O
+	while (gefunden == False):					#Strategie: moeglichst weit rechts setzen
+		if (f[spalte][0] == "."):
+			gefunden = True
+		else:
+			spalte += 1
+	for y in range(0,6):					#test von oben
+		if (y+1 == 6 or f[spalte][y+1] != "."):
+			f[spalte][y] = symbol
+			break			
 
 
-#prueft, ob das Spiel zuende ist
-def pruefeEnde():
+def pruefeEnde():				#prueft, ob das Spiel zuende ist
 	global f
 	endeErkannt = ""
 	
@@ -85,17 +97,15 @@ def pruefeEnde():
 		pattern = r'%s....%s....%s....%s'%(sp,sp,sp,sp)
 		filtered = re.search(pattern,pruefStr)
 		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
-			endeErkannt = "Sieg fuer %s (diagonal)"%(sp)
-		
+			endeErkannt = "Sieg fuer %s (diagonal)"%(sp)	
 	return endeErkannt
 	
-
 
 def main():
 	#INIT:
 	spieler = ["",""]
-	spieler[0] = raw_input("Name Spieler 1: ")
-	spieler[1] = raw_input("Name Spieler 2: ")
+	spieler[0] = raw_input("Name Spieler: ")
+	spieler[1] = "COM"
 	
 	global f							#main() kann f veraendern
 	for x in range(0,7):				#0 bis 6
@@ -105,14 +115,17 @@ def main():
 	aktSp = r.randint(0,1)				#aktueller Spieler...Bestimmen, welcher Spieler beginnt	
 	while (pruefeEnde() == ""):			#solange das Spiel laeuft
 		zeichne(aktSp, spieler)
-		spielerZug(aktSp)
+		if (aktSp == 0):
+			spielerZug()
+		else:
+			computerZug()
 		
 		#Spielerwechsel
 		if (aktSp == 0):
 			aktSp = 1
 		elif (aktSp == 1):
 			aktSp = 0
-	zeichne(aktSp, spieler)
+	zeichne(aktSp, spieler)				#"Siegerfoto" --> kein Abbruch bevor 4 in einer Reihe
 	print pruefeEnde()
 
 main()
