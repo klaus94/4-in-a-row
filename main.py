@@ -29,10 +29,8 @@ def zeichne(aktSp, spieler):
 	print ""				
 
 
-def pruefeEnde():				#prueft, ob das Spiel zuende ist
-	global f
+def pruefeEnde(f):				#prueft, ob das Spiel zuende ist
 	endeErkannt = ""
-	
 	
 	pruefFeld = []		#2D --> 1D
 	for x in range(0,7):
@@ -74,7 +72,7 @@ def spielerZug():
 			spalte -= 1								#f...von 0 bis 6; eingabe von 1 bis 7
 			
 			for y in range(0,6):					#test von oben
-			#[boden]		[auf letzten stein]		[nicht ins oberste, wenn reihe voll]
+					#[boden]		[auf letzten stein]		[nicht ins oberste, wenn reihe voll]
 				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):
 					eingabeRichtig = True
 					f[spalte][y] = symbol
@@ -85,20 +83,26 @@ def computerZug():
 	#INIT
 	global f
 	os.system("sleep 1")					#Wartezeit
-	gefunden = False
 	symbol = "O"							#Computer hat immer das O
 	
-	#Strategie 1: moeglichst weit rechts setzen
-	'''
-	spalte = 0
-	while (gefunden == False):											
-		if (f[spalte][0] == "."):
-			gefunden = True
-		else:
-			spalte += 1
-	'''
-	#Strategie 2: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern
-	
+	#Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern
+	bew = [0,0,0,0,0,0,0]						#bew... Bewertungsfeld
+	for spalte in range(0,7):
+		for y in range(0,6):					
+			if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
+				f[spalte][y] = symbol
+				break
+		if (pruefeEnde(f) != ""):
+			bew[spalte] = 1						#Bewertung der geprueften Spalte
+		f[spalte][y] = "."						#rueckgaengig
+	print bew
+	for spalte in range(0,7):					#In das hoechst bewertete Feld setzen
+		if (bew == [0,0,0,0,0,0,0]):
+			spalte = r.randint(0,6)
+			break
+		elif (bew[spalte] == max(bew)):
+			break
+		
 	
 	#SETZEN
 	for y in range(0,6):					#test von oben
@@ -119,7 +123,7 @@ def main():
 	
 	#SPIEL:
 	aktSp = r.randint(0,1)				#aktueller Spieler...Bestimmen, welcher Spieler beginnt	
-	while (pruefeEnde() == ""):			#solange das Spiel laeuft
+	while (pruefeEnde(f) == ""):			#solange das Spiel laeuft
 		zeichne(aktSp, spieler)
 		if (aktSp == 0):
 			spielerZug()
@@ -132,6 +136,6 @@ def main():
 		elif (aktSp == 1):
 			aktSp = 0
 	zeichne(aktSp, spieler)				#"Siegerfoto" --> kein Abbruch bevor 4 in einer Reihe
-	print pruefeEnde()
+	print pruefeEnde(f)
 
 main()
