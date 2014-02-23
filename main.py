@@ -29,7 +29,7 @@ def zeichne(aktSp, spieler):
 	print ""				
 
 
-def pruefeEnde(f):				#prueft, ob das Spiel zuende ist
+def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 	endeErkannt = ""
 	
 	pruefFeld = []		#2D --> 1D
@@ -64,8 +64,8 @@ def pruefeEnde(f):				#prueft, ob das Spiel zuende ist
 def spielerZug():
 	global f
 	eingabeRichtig = False
-	symbol = "X"						#Spieler hat immer das X						
-	while not (eingabeRichtig):					#solange die eingabe nicht richtig war
+	symbol = "X"									#Spieler hat immer das X						
+	while not (eingabeRichtig):						#solange die eingabe nicht richtig war
 		spalte = raw_input("In welches Feld soll gesetzt werden? ")
 		if (spalte in "1234567" and spalte != ""):
 			spalte = int(spalte)
@@ -82,21 +82,25 @@ def spielerZug():
 def computerZug():
 	#INIT
 	global f
-	os.system("sleep 1")					#Wartezeit
-	symbol = "O"							#Computer hat immer das O
+	os.system("sleep 1")							#Wartezeit
+	bew = [0,0,0,0,0,0,0]							#bew... Bewertungsfeld
 	
 	#Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern
-	bew = [0,0,0,0,0,0,0]						#bew... Bewertungsfeld
-	for spalte in range(0,7):
-		for y in range(0,6):					
-			if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
-				f[spalte][y] = symbol
-				break
-		if (pruefeEnde(f) != ""):
-			bew[spalte] = 1						#Bewertung der geprueften Spalte
-		f[spalte][y] = "."						#rueckgaengig
+	for symbol in "OX":								#fuer Computer und Spieler
+		for spalte in range(0,7):					#jede spalte
+			for y in range(0,6):					#SETZEN
+				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
+					f[spalte][y] = symbol
+					break
+			if (pruefeEnde(f) != ""):
+				if (symbol == "O"):
+					bew[spalte] = 2					#BEWertung eigener Sieg					!!!
+				elif (symbol == "X"):
+					bew[spalte] = 1					#BEWertung Sieg Gegner verhindern		!!!
+			f[spalte][y] = "."						#rueckgaengig
+		
 	print bew
-	for spalte in range(0,7):					#In das hoechst bewertete Feld setzen
+	for spalte in range(0,7):						#In das hoechst bewertete Feld setzen
 		if (bew == [0,0,0,0,0,0,0]):
 			spalte = r.randint(0,6)
 			break
@@ -105,7 +109,8 @@ def computerZug():
 		
 	
 	#SETZEN
-	for y in range(0,6):					#test von oben
+	symbol = "O"
+	for y in range(0,6):							#test von oben
 		if (y+1 == 6 or f[spalte][y+1] != "."):
 			f[spalte][y] = symbol
 			break
