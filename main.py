@@ -36,27 +36,29 @@ def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 	for x in range(0,7):
 		for y in range(0,6):
 			pruefFeld.append(f[x][y])
+		pruefFeld.append("|")				#Kennzeichnung einer Spalte
 	pruefStr = "".join(pruefFeld)			#Feld --> String
 	#print pruefStr							#Kontrolle, fuer String
 	
 	for sp in "XO":							#fuer beide spieler
-		if ("%s%s%s%s"%(sp,sp,sp,sp) in pruefStr):				#senkrecht
+		if ("%s%s%s%s"%(sp,sp,sp,sp) in pruefStr):					#senkrecht
 			endeErkannt = "Sieg fuer %s (senkrecht)"%(sp)
-			
-		pattern = r'%s.....%s.....%s.....%s'%(sp,sp,sp,sp)		#waagerecht: z.B.: XO....XO....XO....XO		
+		
+		pattern = r'%s......%s......%s......%s'%(sp,sp,sp,sp)		#waagerecht		
 		filtered = re.search(pattern,pruefStr)
-		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):	#wenn gefunden --> typ wird "_sre.SRE_ ..."
+		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):		#wenn gefunden --> typ wird "_sre.SRE_ ..."
 			endeErkannt = "Sieg fuer %s (waagerecht)"%(sp)
 		
-		pattern = r'%s......%s......%s......%s'%(sp,sp,sp,sp)	#diagonal nach rechts unten: z.B.: OXOX...OXX....OX.....O
+		pattern = r'%s.......%s.......%s.......%s'%(sp,sp,sp,sp)	#diagonal nach rechts unten:	z.B.: XOXO|...XOO|....XO|.....X
 		filtered = re.search(pattern,pruefStr)
 		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
-			endeErkannt = "Sieg fuer %s (diagonal)"%(sp)
+			endeErkannt = "Sieg fuer %s (diagonal \\)"%(sp)
 		
-		pattern = r'%s....%s....%s....%s'%(sp,sp,sp,sp)			#diagonal nach rechts oben:	z.B.: O....OX...OXX..OXOX
+		pattern = r'%s.....%s.....%s.....%s'%(sp,sp,sp,sp)			#diagonal nach rechts oben:		z.B.: X|....XO|...XOO|..XOXO
 		filtered = re.search(pattern,pruefStr)
 		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
-			endeErkannt = "Sieg fuer %s (diagonal)"%(sp)	
+			endeErkannt = "Sieg fuer %s (diagonal /)"%(sp)
+		
 	return endeErkannt
 	
 
@@ -77,27 +79,32 @@ def spielerZug():
 					eingabeRichtig = True
 					f[spalte][y] = symbol
 					break
+	
 					
-					
+#Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern					
 def computerZug():
 	#INIT
 	global f
 	os.system("sleep 1")							#Wartezeit
 	bew = [0,0,0,0,0,0,0]							#bew... Bewertungsfeld
+	gesetzt = False
 	
-	#Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern
+	#Prioritaet 1) und 2) direkten eigenen Sieg erkennen bzw. gegnerischen verhindern
 	for symbol in "OX":								#fuer Computer und Spieler
 		for spalte in range(0,7):					#jede spalte
 			for y in range(0,6):					#SETZEN
 				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
 					f[spalte][y] = symbol
+					gesetzt = True
 					break
-			if (pruefeEnde(f) != ""):
+			if (pruefeEnde(f) != ""):				#wenn es einen Sieger geben wuerde
 				if (symbol == "O"):
-					bew[spalte] = 2					#BEWertung eigener Sieg					!!!
+					bew[spalte] += 2				#BEWertung eigener Sieg					!!!
 				elif (symbol == "X"):
-					bew[spalte] = 1					#BEWertung Sieg Gegner verhindern		!!!
-			f[spalte][y] = "."						#rueckgaengig
+					bew[spalte] += 1				#BEWertung Sieg Gegner verhindern		!!!
+			if (gesetzt):							#nur zug rueckgaengig wenn gesetzt wurde
+				f[spalte][y] = "."					#rueckgaengig
+				gesetzt = False
 		
 	print bew
 	for spalte in range(0,7):						#In das hoechst bewertete Feld setzen
@@ -143,4 +150,5 @@ def main():
 	zeichne(aktSp, spieler)				#"Siegerfoto" --> kein Abbruch bevor 4 in einer Reihe
 	print pruefeEnde(f)
 
-main()
+if __name__ == "__main__":				#kann nur als eigenstaendiges Programm ausgefuert werden (nicht durch Import)
+	main()
