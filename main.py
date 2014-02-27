@@ -58,27 +58,53 @@ def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 		filtered = re.search(pattern,pruefStr)
 		if (str(type(filtered)) == "<type '_sre.SRE_Match'>"):
 			endeErkannt = "Sieg fuer %s (diagonal /)"%(sp)
+	
+	if (endeErkannt == ""):					#wenn kein Sieger erkannt
+		unentschieden = True
+		for i in pruefStr:					#kein leeres Feld mehr enthalten
+			if (i == "."):
+				unentschieden = False
+				break
+		if (unentschieden):					#--> unentschieden erkannt
+			endeErkannt = "Unentschieden"
 		
 	return endeErkannt
+
+
+def inhaltKorrekt(spalte):
+	global f
 	
+	if (f[spalte][0] == "."):
+		return True
+	else:
+		return False
+
+
+def setzen(symbol, spalte):
+	global f
+	for y in range(0,6):							#test von oben
+		if (y+1 == 6 or f[spalte][y+1] != "."):
+			f[spalte][y] = symbol
+			break
+
 
 #Fragt Spieler, wohin er setzen will
 def spielerZug():
 	global f
-	eingabeRichtig = False
-	symbol = "X"									#Spieler hat immer das X						
-	while not (eingabeRichtig):						#solange die eingabe nicht richtig war
+	spalte = 1										#wert --> eingang schleife
+	formalKorrekt = False
+			
+	while not (inhaltKorrekt(spalte-1) and formalKorrekt):		#solange die eingabe nicht richtig war
+		formalKorrekt = False
 		spalte = raw_input("In welches Feld soll gesetzt werden? ")
 		if (spalte in "1234567" and spalte != ""):
+			formalKorrekt = True
 			spalte = int(spalte)
-			spalte -= 1								#f...von 0 bis 6; eingabe von 1 bis 7
-			
-			for y in range(0,6):					#test von oben
-					#[boden]		[auf letzten stein]		[nicht ins oberste, wenn reihe voll]
-				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):
-					eingabeRichtig = True
-					f[spalte][y] = symbol
-					break
+		else:
+			spalte = 1								#beliebiger Wert, damit kein Fehler bei Fkt. inhaltKorrekt()
+							
+	setzen("X", spalte-1)							#f...von 0 bis 6; eingabe von 1 bis 7
+					
 	
 					
 #Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern					
@@ -107,20 +133,16 @@ def computerZug():
 				gesetzt = False
 		
 	print bew
-	for spalte in range(0,7):						#In das hoechst bewertete Feld setzen
-		if (bew == [0,0,0,0,0,0,0]):
-			spalte = r.randint(0,6)
-			break
-		elif (bew[spalte] == max(bew)):
-			break
+	if (bew == [0,0,0,0,0,0,0]):
+		spalte = r.randint(0,6)
+	else:
+		for spalte in range(0,7):						#In das hoechst bewertete Feld setzen
+			if (bew[spalte] == max(bew)):
+				break
 		
 	
 	#SETZEN
-	symbol = "O"
-	for y in range(0,6):							#test von oben
-		if (y+1 == 6 or f[spalte][y+1] != "."):
-			f[spalte][y] = symbol
-			break
+	setzen("O", spalte)
 
 
 def main():
