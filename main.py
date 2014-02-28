@@ -8,10 +8,10 @@ import random as r
 import re
 
 f = [0,1,2,3,4,5,6]					#leeres Feld f erzeugen (x-werte)
+bew = [0, 0, 0, 0, 0, 0, 0]			#Berwertungsfeld
 
 
-#zeichnet das aktuelle Spielfeld
-def zeichne(aktSp, spieler):
+def zeichne(aktSp, spieler):		#zeichnet das aktuelle Spielfeld
 	global f
 	os.system("clear")				#alles leeren
 	#Symbolwahl
@@ -32,7 +32,7 @@ def zeichne(aktSp, spieler):
 def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 	endeErkannt = ""
 	
-	pruefFeld = []		#2D --> 1D
+	pruefFeld = []					#2D --> 1D
 	for x in range(0,7):
 		for y in range(0,6):
 			pruefFeld.append(f[x][y])
@@ -71,6 +71,34 @@ def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 	return endeErkannt
 
 
+def siegMoeglich(stufe):
+	global f
+	global bew
+	gesetzt = False
+	if stufe == 1:
+		faktor = 1
+	else:
+		fakor = -1
+	
+	for symbol in "OX":								#fuer Computer und Spieler
+		for spalte in range(0,7):					#jede spalte
+			for y in range(0,6):					#SETZEN
+				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
+					f[spalte][y] = symbol
+					gesetzt = True
+					break
+			if (pruefeEnde(f) != ""):				#wenn es einen Sieger geben wuerde
+				if symbol == "O":
+					bew[spalte] += faktor * pow(2,2*(4-stufe))	#stufe 1: 32
+				elif symbol == "X":
+					bew[spalte] += faktor * pow(2,(4-stufe))	#stufe 1: 16
+			if stufe < 4:							#rekursiv Pruefen
+				siegMoeglich(stufe+1)
+			if (gesetzt):							#nur zug rueckgaengig wenn gesetzt wurde
+				f[spalte][y] = "."					#rueckgaengig
+				gesetzt = False
+
+
 def inhaltKorrekt(spalte):
 	global f
 	
@@ -88,8 +116,8 @@ def setzen(symbol, spalte):
 			break
 
 
-#Fragt Spieler, wohin er setzen will
-def spielerZug():
+
+def spielerZug():									#Fragt Spieler, wohin er setzen will
 	global f
 	spalte = 1										#wert --> eingang schleife
 	formalKorrekt = False
@@ -106,40 +134,26 @@ def spielerZug():
 	setzen("X", spalte-1)							#f...von 0 bis 6; eingabe von 1 bis 7
 					
 	
-					
-#Strategie: Prioritaeten: 1)Selbst gewinnen 2)Niederlage verhindern 3)eigene Fallen bauen 4)Fallen von Gegner verhindern					
+########################################################################################################################					
+#Strategie: Prioritaeten: 
+#1)Selbst gewinnen 
+#2)Niederlage verhindern 
+#3)+4) dem Gegner/sich selbst Sieg ermoeglichen/entschaerfen
+#5)eigene Fallen bauen 
+#6)Fallen von Gegner verhindern
+########################################################################################################################					
 def computerZug():
-	#INIT
 	global f
-	os.system("sleep 1")							#Wartezeit
-	bew = [0,0,0,0,0,0,0]							#bew... Bewertungsfeld
-	gesetzt = False
+	global bew										#bew... Bewertungsfeld
+	bew = [0,0,0,0,0,0,0]					
 	
-	#Prioritaet 1) und 2) direkten eigenen Sieg erkennen bzw. gegnerischen verhindern
-	for symbol in "OX":								#fuer Computer und Spieler
-		for spalte in range(0,7):					#jede spalte
-			for y in range(0,6):					#SETZEN
-				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
-					f[spalte][y] = symbol
-					gesetzt = True
-					break
-			if (pruefeEnde(f) != ""):				#wenn es einen Sieger geben wuerde
-				if (symbol == "O"):
-					bew[spalte] += 2				#BEWertung eigener Sieg					!!!
-				elif (symbol == "X"):
-					bew[spalte] += 1				#BEWertung Sieg Gegner verhindern		!!!
-			if (gesetzt):							#nur zug rueckgaengig wenn gesetzt wurde
-				f[spalte][y] = "."					#rueckgaengig
-				gesetzt = False
-		
+	siegMoeglich(1)									#Erstellung bew-Feld (4 Stufen voraus)
+	
 	print bew
-	if (bew == [0,0,0,0,0,0,0]):
+	
+	spalte = r.randint(0,6)
+	while bew[spalte] != max(bew):
 		spalte = r.randint(0,6)
-	else:
-		for spalte in range(0,7):						#In das hoechst bewertete Feld setzen
-			if (bew[spalte] == max(bew)):
-				break
-		
 	
 	#SETZEN
 	setzen("O", spalte)
@@ -157,7 +171,7 @@ def main():
 	
 	#SPIEL:
 	aktSp = r.randint(0,1)				#aktueller Spieler...Bestimmen, welcher Spieler beginnt	
-	while (pruefeEnde(f) == ""):			#solange das Spiel laeuft
+	while (pruefeEnde(f) == ""):		#solange das Spiel laeuft
 		zeichne(aktSp, spieler)
 		if (aktSp == 0):
 			spielerZug()
