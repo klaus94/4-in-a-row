@@ -71,14 +71,24 @@ def pruefeEnde(f):					#prueft, ob das Spiel zuende ist
 	return endeErkannt
 
 
+def inhaltKorrekt(spalte):
+	global f
+	
+	if (f[spalte][0] == "."):
+		return True
+	else:
+		return False
+		
+
 def siegMoeglich(stufe):
 	global f
 	global bew
+	
+	faktor = 1
+	if stufe == 2:
+		faktor = -1
+	
 	gesetzt = False
-	if stufe == 1:
-		faktor = 1
-	else:
-		fakor = -1
 	
 	for symbol in "OX":								#fuer Computer und Spieler
 		for spalte in range(0,7):					#jede spalte
@@ -91,21 +101,13 @@ def siegMoeglich(stufe):
 				if symbol == "O":
 					bew[spalte] += faktor * pow(2,2*(4-stufe))	#stufe 1: 32
 				elif symbol == "X":
-					bew[spalte] += faktor * pow(2,(4-stufe))	#stufe 1: 16
-			if stufe < 4:							#rekursiv Pruefen
+					bew[spalte] += pow(2,(4-stufe))	#stufe 1: 16
+			if stufe < 3:							#rekursiv Pruefen
 				siegMoeglich(stufe+1)
 			if (gesetzt):							#nur zug rueckgaengig wenn gesetzt wurde
 				f[spalte][y] = "."					#rueckgaengig
 				gesetzt = False
 
-
-def inhaltKorrekt(spalte):
-	global f
-	
-	if (f[spalte][0] == "."):
-		return True
-	else:
-		return False
 
 
 def setzen(symbol, spalte):
@@ -152,7 +154,7 @@ def computerZug():
 	print bew
 	
 	spalte = r.randint(0,6)
-	while bew[spalte] != max(bew):
+	while bew[spalte] != max(bew) or inhaltKorrekt(spalte) == False:
 		spalte = r.randint(0,6)
 	
 	#SETZEN
