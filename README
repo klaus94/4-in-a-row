@@ -1,2 +1,12 @@
 Der Klassiker - vier Gewinnt mit Python
 #######################################
+
+Um das Skript auszuführen, muss Python auf dem Rechner installiert sein.
+Auf Linux-Systemen ist es meistens vorinstalliert. 
+Unter Windows muss es extra heruntergeladen werden.
+Das Programm wurde unter Python 2.7 getestet
+
+Um das Programm (egal, ob das Text- oder das grafische Programm) zu starten:
+	- Terminal öffnen
+	- Zum richtigen Pfad wechseln ("cd [...]")
+	- Pythonskript ausführen ("python main[_GUI].py")
