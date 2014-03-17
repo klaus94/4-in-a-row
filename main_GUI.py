@@ -13,6 +13,7 @@ import tkMessageBox
 
 def zeichne(aktSp, x, y):
 	global f
+	global spielende
 	#Symbolwahl
 	if (aktSp == "X"):
 		symFarbe = "red"
@@ -27,7 +28,9 @@ def zeichne(aktSp, x, y):
 
 	if (pruefeEnde(f) != ""):
 		tkMessageBox.showinfo("Spielende", pruefeEnde(f))
-		root.quit()	
+		spielende = True
+		print spielende
+		root.quit()
 
 
 def pruefeEnde(f):
@@ -84,7 +87,7 @@ def inhaltKorrekt(spalte):
 		return True
 	else:
 		return False
-		
+	
 
 def siegMoeglich(stufe):
 	global f
@@ -126,7 +129,7 @@ def setzen(symbol, spalte):
 
 def spielerZug(spalte):
 	global f
-	if (inhaltKorrekt(spalte-1)):				
+	if (f[spalte-1][0] == "."):				
 		setzen("X", spalte-1)						#f...von 0 bis 6; eingabe von 1 bis 7
 					
 					
@@ -149,31 +152,38 @@ def computerZug():
 
 def klick1():
 	spielerZug(1)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick2():
 	spielerZug(2)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick3():
 	spielerZug(3)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick4():
 	spielerZug(4)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick5():
 	spielerZug(5)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick6():
 	spielerZug(6)
-	computerZug()
+	if not(spielende):
+		computerZug()
 	
 def klick7():
 	spielerZug(7)
-	computerZug()	
+	if not(spielende):
+		computerZug()	
 	
 ###################### FORM ERSTELLEN ########################################
 ##############################################################################
@@ -184,7 +194,9 @@ g = 50		#Groesse
 root = Tkinter.Tk()
 root.geometry(str(8*ab+7*g)+"x"+str(7*ab+6*g+25))
 
-C = Tkinter.Canvas(root, bg="blue", height=7*ab+6*g+25, width=8*ab+7*g)	
+#blauer Hintergrund
+C = Tkinter.Canvas(root, bg="blue", height=7*ab+6*g+25, width=8*ab+7*g)
+C.pack()
 
 #Buttons:
 y0 = (6*g) + (7*ab)		#immer gleich
@@ -224,12 +236,7 @@ knopf7.place(x=x0, y=y0, height=20, width=20)
 
 f = [0,1,2,3,4,5,6]					#leeres Feld f erzeugen (x-werte)
 bew = [0, 0, 0, 0, 0, 0, 0]			#Berwertungsfeld
-
-'''
-spieler = ["",""]
-spieler[0] = raw_input("Name Spieler: ")
-spieler[1] = "COM"
-'''
+spielende = False
 
 
 for x in range(0,7):
