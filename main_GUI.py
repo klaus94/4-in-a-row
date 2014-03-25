@@ -8,13 +8,38 @@ import Tkinter
 import tkMessageBox
 
 
+########################## TODO ####################################
+####################################################################
+#wenn Feld beim Testen zu hoch wird, wird kein Stein gesetzt, aber es wird einer zurueckgenommen --> und fuer darunterliegende Stufe auch
+#--> ein Stein, der normalerweise da ist, ist dann weg
+#1) Abgleich mit f ???
+#2) weitere Sicherheit einbauen, dass nur gesetzte Steine wieder rueckgaengig gemacht werden koennen
+
+
 #################### SPIEL FUNKTIONEN ##############################
 ####################################################################
 
+#Hiflsfunktion
+def zeigeFeld(feld):
+	test = []
+	for i in range(0,6):
+		test.append([])
+		for j in range(0,7):
+			test[i].append(".")
+	for x in range(len(feld)):
+		for y in range(len(feld[x])):
+			test[y][x] = feld[x][y]
+	for x in range(len(test)):
+		s = ""
+		for y in range(len(test[x])):
+			s += test[x][y] + " "
+		print s
+
+
 def zeichne(aktSp, x, y):
-	global f
+	#global f
 	global spielende
-	#Symbolwahl
+
 	if (aktSp == "X"):
 		symFarbe = "red"
 	else:
@@ -29,20 +54,18 @@ def zeichne(aktSp, x, y):
 	if (pruefeEnde(f) != ""):
 		tkMessageBox.showinfo("Spielende", pruefeEnde(f))
 		spielende = True
-		print spielende
 		root.quit()
 
 
-def pruefeEnde(f):
+def pruefeEnde(feld):
 		endeErkannt = ""
-	
-		pruefFeld = []					#2D --> 1D
+			
+		pruefFeld = []							#2D --> 1D
 		for x in range(0,7):
 			for y in range(0,6):
-				pruefFeld.append(f[x][y])
+				pruefFeld.append(feld[x][y])
 			pruefFeld.append("|")				#Kennzeichnung einer Spalte
 		pruefStr = "".join(pruefFeld)			#Feld --> String
-		#print pruefStr							#Kontrolle, fuer String
 	
 		for sp in "XO":							#fuer beide spieler
 			if (sp == "O"):
@@ -81,51 +104,81 @@ def pruefeEnde(f):
 
 
 def inhaltKorrekt(spalte):
-	global f
-
 	if (f[spalte][0] == "."):
 		return True
 	else:
 		return False
+
+
+def setzenTestfeld(testfeld, spalte, symbol):
+	for y in range(0,6):										#test von oben
+		if (y+1 == 6 or testfeld[spalte][y+1] != "."):
+			testfeld[spalte][y] = symbol
+			break
+	return testfeld
+
+def rueckgaengig(testfeld, spalte):
+	for y in range(0,6):
+		if (testfeld[spalte][y] != "."):
+			testfeld[spalte][y] = "."
+			break
+	return testfeld
+
+def siegMoeglich(testfeld, stufe, spalte0):
+	if (spalte0 != 0 and stufe == 1):
+		testfeld = rueckgaengig(testfeld, spalte0-1)
+
+	gesetzt1 = False
+	if (stufe == 1):
+		testfeld = setzenTestfeld(testfeld, spalte0, "O")
+		gesetzt1 = True
+		if (pruefeEnde(testfeld) != ""):
+			bew[spalte0] += pow(2,4*(4-stufe))				#Sieg Computer --> gut
+
+
 	
+	
+	
+	alteSpalte = 0
 
-def siegMoeglich(stufe):
-	global f
-	global bew
+	for spalte in range(0,7):
 
-	faktor = 1
-	if stufe == 2:
-		faktor = -1
+		gesetzt = False
 
-	gesetzt = False
+		if (stufe % 2 == 1 and stufe > 1):						#Zuege von Computer
+			testfeld = setzenTestfeld(testfeld, spalte, "O")
+			gesetzt = True
+			if (pruefeEnde(testfeld) != ""):
+				bew[spalte0] += pow(2,2*(4-stufe))				#Sieg Computer --> gut
 
-	for symbol in "OX":								#fuer Computer und Spieler
-		for spalte in range(0,7):					#jede spalte
-			for y in range(0,6):					#SETZEN
-				if ((y+1 == 6 or f[spalte][y+1] != ".") and f[spalte][y] == "."):	
-					f[spalte][y] = symbol
-					gesetzt = True
-					break
-			if (pruefeEnde(f) != ""):				#wenn es einen Sieger geben wuerde
-				if symbol == "O":
-					bew[spalte] += faktor * pow(2,2*(4-stufe))	#stufe 1: 32
-				elif symbol == "X":
-					bew[spalte] += pow(2,(4-stufe))	#stufe 1: 16
-			if stufe < 3:							#rekursiv Pruefen
-				siegMoeglich(stufe+1)
-			if (gesetzt):							#nur zug rueckgaengig wenn gesetzt wurde
-				f[spalte][y] = "."					#rueckgaengig
-				gesetzt = False
+		elif (stufe % 2 == 0 and stufe > 1):					#Zuege von Spieler
+			testfeld = setzenTestfeld(testfeld, spalte, "X")
+			gesetzt = True
+			if (pruefeEnde(testfeld) != ""):
+				bew[spalte0] -= pow(2, (4-stufe))				#Sieg Spieler -->  schlecht
+
+		print "f:"
+		zeigeFeld(f)
+		print "test:"
+		zeigeFeld(testfeld)
+
+		if stufe < 2:											#Rekursiv Pruefen
+			siegMoeglich(testfeld, stufe+1, spalte0)
+
+		if (gesetzt):											#Rueckgaenig
+			testfeld = rueckgaengig(testfeld, spalte)
+			gesetzt = False
 
 
 def setzen(symbol, spalte):
 	global f
+	
 	for y in range(0,6):							#test von oben
 		if (y+1 == 6 or f[spalte][y+1] != "."):
 			f[spalte][y] = symbol
 			zeichne(symbol, spalte, y)
 			break
-			
+				
 
 def spielerZug(spalte):
 	global f
@@ -134,11 +187,19 @@ def spielerZug(spalte):
 					
 					
 def computerZug():
-	global f
 	global bew										#bew... Bewertungsfeld
 	bew = [0,0,0,0,0,0,0]					
 
-	siegMoeglich(1)									#Erstellung bew-Feld (4 Stufen voraus)
+	testfeld = []
+	for i in range(len(f)):
+		testfeld.append([])
+		for j in range(len(f[i])):
+			testfeld[i].append(f[i][j])
+
+	for spalte0 in range(0,7):
+		siegMoeglich(testfeld, 1, spalte0)			#Erstellung bew-Feld (4 Stufen voraus)
+
+	print bew
 
 	spalte = r.randint(0,6)
 	while bew[spalte] != max(bew) or inhaltKorrekt(spalte) == False:
@@ -241,12 +302,6 @@ spielende = False
 
 for x in range(0,7):
 	f[x] = [".",".",".",".",".","."]
-
-
-
-#ENDE:
-#zeichne(aktSp, spieler)				#"Siegerfoto" --> kein Abbruch bevor 4 in einer Reihe
-#print pruefeEnde(f)
 
 
 root.mainloop()
