@@ -15,6 +15,8 @@ import tkMessageBox
 #1) Abgleich mit f ???
 #2) weitere Sicherheit einbauen, dass nur gesetzte Steine wieder rueckgaengig gemacht werden koennen
 
+#+
+#Puntkvergabe wenn computer einen stein setzt und spieler im feld darueber gewinnt --> negative Bewertung
 
 #################### SPIEL FUNKTIONEN ##############################
 ####################################################################
@@ -37,7 +39,6 @@ def zeigeFeld(feld):
 
 
 def zeichne(aktSp, x, y):
-	#global f
 	global spielende
 
 	if (aktSp == "X"):
@@ -129,7 +130,7 @@ def siegMoeglich(testfeld, stufe, spalte0):
 		testfeld = rueckgaengig(testfeld, spalte0-1)
 
 	gesetzt1 = False
-	if (stufe == 1):
+	if (stufe == 1 and testfeld[spalte0][0] == "."):
 		testfeld = setzenTestfeld(testfeld, spalte0, "O")
 		gesetzt1 = True
 		if (pruefeEnde(testfeld) != ""):
@@ -143,31 +144,32 @@ def siegMoeglich(testfeld, stufe, spalte0):
 
 	for spalte in range(0,7):
 
-		gesetzt = False
-
-		if (stufe % 2 == 1 and stufe > 1):						#Zuege von Computer
-			testfeld = setzenTestfeld(testfeld, spalte, "O")
-			gesetzt = True
-			if (pruefeEnde(testfeld) != ""):
-				bew[spalte0] += pow(2,2*(4-stufe))				#Sieg Computer --> gut
-
-		elif (stufe % 2 == 0 and stufe > 1):					#Zuege von Spieler
-			testfeld = setzenTestfeld(testfeld, spalte, "X")
-			gesetzt = True
-			if (pruefeEnde(testfeld) != ""):
-				bew[spalte0] -= pow(2, (4-stufe))				#Sieg Spieler -->  schlecht
-
-		print "f:"
-		zeigeFeld(f)
-		print "test:"
-		zeigeFeld(testfeld)
-
-		if stufe < 2:											#Rekursiv Pruefen
-			siegMoeglich(testfeld, stufe+1, spalte0)
-
-		if (gesetzt):											#Rueckgaenig
-			testfeld = rueckgaengig(testfeld, spalte)
+		if (testfeld[spalte][0] == "."):
 			gesetzt = False
+
+			if (stufe % 2 == 1 and stufe > 1):						#Zuege von Computer
+				testfeld = setzenTestfeld(testfeld, spalte, "O")
+				gesetzt = True
+				if (pruefeEnde(testfeld) != ""):
+					bew[spalte0] += pow(2,2*(4-stufe))				#Sieg Computer --> gut
+
+			elif (stufe % 2 == 0 and stufe > 1):					#Zuege von Spieler
+				testfeld = setzenTestfeld(testfeld, spalte, "X")
+				gesetzt = True
+				if (pruefeEnde(testfeld) != ""):
+					bew[spalte0] -= pow(2, (4-stufe))				#Sieg Spieler -->  schlecht
+
+			print "f:"
+			zeigeFeld(f)
+			print "test:"
+			zeigeFeld(testfeld)
+
+			if stufe < 2:											#Rekursiv Pruefen
+				siegMoeglich(testfeld, stufe+1, spalte0)
+
+			if (gesetzt):											#Rueckgaenig
+				testfeld = rueckgaengig(testfeld, spalte)
+				gesetzt = False
 
 
 def setzen(symbol, spalte):
@@ -253,7 +255,7 @@ ab = 5		#Abstand
 g = 50		#Groesse
 
 root = Tkinter.Tk()
-root.geometry(str(8*ab+7*g)+"x"+str(7*ab+6*g+25))
+root.geometry(str(8*ab+7*g) + "x" + str(7*ab+6*g+25))
 
 #blauer Hintergrund
 C = Tkinter.Canvas(root, bg="blue", height=7*ab+6*g+25, width=8*ab+7*g)
