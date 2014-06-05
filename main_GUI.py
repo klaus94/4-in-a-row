@@ -159,10 +159,10 @@ def siegMoeglich(testfeld, stufe, spalte0):
 				if (pruefeEnde(testfeld) != ""):
 					bew[spalte0] -= pow(2, (4-stufe))				#Sieg Spieler -->  schlecht
 
-			print "f:"
-			zeigeFeld(f)
-			print "test:"
-			zeigeFeld(testfeld)
+			#print "f:"
+			#zeigeFeld(f)
+			#print "test:"
+			#zeigeFeld(testfeld)
 
 			if stufe < 2:											#Rekursiv Pruefen
 				siegMoeglich(testfeld, stufe+1, spalte0)
@@ -201,7 +201,7 @@ def computerZug():
 	for spalte0 in range(0,7):
 		siegMoeglich(testfeld, 1, spalte0)			#Erstellung bew-Feld (4 Stufen voraus)
 
-	print bew
+	#print bew
 
 	spalte = r.randint(0,6)
 	while bew[spalte] != max(bew) or inhaltKorrekt(spalte) == False:
